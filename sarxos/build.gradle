@@ -1,0 +1,36 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.4'
+	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'java'
+}
+
+group = 'tutorial'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	//implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.7.v20150116'
+	compileOnly 'org.projectlombok:lombok'
+	implementation 'com.github.sarxos:webcam-capture:0.3.12'
+	implementation 'com.github.sarxos:webcam-capture-driver-ipcam:0.3.12'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
