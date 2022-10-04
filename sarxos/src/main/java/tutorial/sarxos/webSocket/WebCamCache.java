@@ -4,15 +4,18 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 import com.github.sarxos.webcam.WebcamUpdater;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebCamCache.class);
@@ -33,6 +36,7 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
 
 
     public WebCamCache() {
+        log.info("WebCamCache() init");
         for (Webcam webcam : Webcam.getWebcams()) {
             webcam.addWebcamListener(this);
             webcam.open(true, this);
@@ -84,6 +88,10 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
     }
 
     public static void subscribe(WebSocketHandler handler) {
+        for (Webcam webcam : Webcam.getWebcams()) {
+            log.info("subscribe {}", getWebcamNames());
+        }
+
         CACHE.handlers.add(handler);
     }
 
