@@ -20,7 +20,7 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
     /**
      * How often images are updated on server
      */
-    private static final long DELAY = 10000;
+    private static final long DELAY = 50;
 
     private static Webcam webCam;
     private WebSocketHandler handler;

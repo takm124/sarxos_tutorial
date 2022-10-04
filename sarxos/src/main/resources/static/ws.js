@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var ws = new WebSocket("ws://127.0.0.1:9090/ws/cam");
+    let ws = new WebSocket("ws://127.0.0.1:9090/ws/cam");
     ws.onopen = function(e) {
         if (typeof console !== 'undefined') {
             console.info('WS open');
@@ -7,10 +7,9 @@ $(document).ready(function() {
     };
 
     ws.onmessage = function (e) {
-        console.info('WS onMessage');
+
         var data = JSON.parse(e.data),
             type = data.type,
-
             i = 0,
             $webcams = $('#webcams'),
             $img = null;
@@ -19,12 +18,9 @@ $(document).ready(function() {
             console.info('WS message', type);
         }
 
-        if (type === 'list') {
-            $img = $("<img></img>")
-                .attr("src", "webcam-capture-logo-small.jpg")
-            $webcams.append($img)
-        } else if (type === 'image') {
-            var $img = $("img[name='" + data.webcam + "']")
+        if (type === 'image') {
+            console.info('');
+            var $img = $("img[name='" + "Integrated Webcam 0" + "']")
                 .attr("src", "data:image/jpeg;base64," + data.image)
                 .addClass('shadow')
                 .trigger("change");
