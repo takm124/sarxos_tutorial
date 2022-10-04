@@ -5,16 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.sarxos.webcam.Webcam;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,6 +26,7 @@ import java.util.Map;
 public class WebSocketHandler extends AbstractWebSocketHandler {
 
     private static WebSocketSession session;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * session clear
@@ -65,29 +64,27 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         message.put("webcam", webcam.getName());
         message.put("image", base64);
 
+        try {
+            String msg = MAPPER.writeValueAsString(message);
+            log.info("send message {}", msg);
+            session.sendMessage(new TextMessage(msg));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("WebSocket Connection Established");
-
-        Webcam webcam = Webcam.getDefault(); // search webcam
-		if (webcam != null) {
-			log.info("Webcam: " + webcam.getName());
-		} else {
-			log.info("No webcam detected");
-		}
-        webcam.setViewSize(new Dimension(160, 120));
-
-        log.info("webCam setup start");
-
         this.session = session;
 
-        Map<String, Object> message = new HashMap<>();
-        message.put("type", "list");
-        message.put("webcams", WebCamCache.getWebcamNames());
+        WebCamCache cache = WebCamCache.getInstance();
 
-        WebCamCache.subscribe(this);
+        log.info("before subscribe");
+        cache.subscribe(this);
     }
 
     @Override
@@ -105,4 +102,5 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
         }
     }
+
 }

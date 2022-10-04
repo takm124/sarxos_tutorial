@@ -7,9 +7,10 @@ $(document).ready(function() {
     };
 
     ws.onmessage = function (e) {
-
+        console.info('WS onMessage');
         var data = JSON.parse(e.data),
             type = data.type,
+
             i = 0,
             $webcams = $('#webcams'),
             $img = null;
@@ -19,13 +20,9 @@ $(document).ready(function() {
         }
 
         if (type === 'list') {
-            for (i = 0; i < data.webcams.length; i += 1) {
-                $img = $("<img></img>")
-                    .attr("src", "webcam-capture-logo-small.jpg")
-                    .attr("alt", data.webcams[i])
-                    .attr("name", data.webcams[i]);
-                $webcams.append($img)
-            }
+            $img = $("<img></img>")
+                .attr("src", "webcam-capture-logo-small.jpg")
+            $webcams.append($img)
         } else if (type === 'image') {
             var $img = $("img[name='" + data.webcam + "']")
                 .attr("src", "data:image/jpeg;base64," + data.image)

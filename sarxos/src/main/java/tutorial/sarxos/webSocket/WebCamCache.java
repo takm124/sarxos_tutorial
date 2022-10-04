@@ -1,9 +1,6 @@
 package tutorial.sarxos.webSocket;
 
-import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamEvent;
-import com.github.sarxos.webcam.WebcamListener;
-import com.github.sarxos.webcam.WebcamUpdater;
+import com.github.sarxos.webcam.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,23 +22,35 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
      */
     private static final long DELAY = 10000;
 
-    /**
-     * Webcam list
-     */
-    private Map<String, Webcam> webcams = new HashMap<>();
+    private static Webcam webCam;
+    private WebSocketHandler handler;
 
-    private List<WebSocketHandler> handlers = new ArrayList<>();
-
-    private static final WebCamCache CACHE = new WebCamCache();
+    private static WebCamCache CACHE;
 
 
     public WebCamCache() {
         log.info("WebCamCache() init");
-        for (Webcam webcam : Webcam.getWebcams()) {
-            webcam.addWebcamListener(this);
-            webcam.open(true, this);
-            webcams.put(webcam.getName(), webcam);
+
+        webCam = Webcam.getDefault();
+
+        Dimension frameSize = new Dimension(160, 120);
+        webCam.setCustomViewSizes(new Dimension[] { frameSize });
+        webCam.setViewSize(frameSize);
+
+        webCam.addWebcamListener(this);
+        webCam.open(true, this);
+    }
+
+    public static WebCamCache getInstance()
+    {
+        log.info("WebCamCache getInstance()");
+        if (CACHE == null) {
+            synchronized (WebCamCache.class) {
+                CACHE = new WebCamCache();
+            }
         }
+
+        return CACHE;
     }
 
 
@@ -51,18 +60,16 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
     }
 
     public static BufferedImage getImage(String name) {
-        Webcam webcam = CACHE.webcams.get(name);
         try {
-            return webcam.getImage(); // return capture image from webcam
+            return webCam.getImage(); // return capture image from webcam
         } catch (Exception e) {
             LOG.error("Exception when getting image from webcam", e);
         }
 
         return null;
     }
-
-    public static List<String> getWebcamNames() {
-        return new ArrayList<String>(CACHE.webcams.keySet());
+    public static String getWebcamName() {
+        return CACHE.webCam.getName();
     }
 
     @Override
@@ -82,21 +89,13 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
 
     @Override
     public void webcamImageObtained(WebcamEvent we) {
-        for (WebSocketHandler handler : handlers) {
-            handler.newImage(we.getSource(), we.getImage());
-        }
+        log.info("webcamImageObtained");
+        handler.newImage(we.getSource(), we.getImage());
     }
 
-    public static void subscribe(WebSocketHandler handler) {
-        for (Webcam webcam : Webcam.getWebcams()) {
-            log.info("subscribe {}", getWebcamNames());
-        }
-
-        CACHE.handlers.add(handler);
-    }
-
-    public static void unsubscribe(WebSocketHandler handler) {
-        CACHE.handlers.remove(handler);
+    public void subscribe(WebSocketHandler handler) {
+        log.info("subscribe {}", getWebcamName());
+        CACHE.handler = handler;
     }
 
 }

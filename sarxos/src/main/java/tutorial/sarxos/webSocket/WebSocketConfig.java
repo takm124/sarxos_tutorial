@@ -16,6 +16,4 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketHandler, "ws/cam").setAllowedOrigins("*");
     }
-
-
 }
