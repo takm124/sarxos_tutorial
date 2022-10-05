@@ -7,12 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class SarxosApplication {
-
-	private static final Logger LOG = LoggerFactory.getLogger(SarxosApplication.class);
-
 	public static void main(String[] args) {
 		SpringApplication.run(SarxosApplication.class, args);
-
 	}
 
 }

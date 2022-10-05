@@ -17,14 +17,10 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
 
     private static final Logger LOG = LoggerFactory.getLogger(WebCamCache.class);
 
-    /**
-     * How often images are updated on server
-     */
-    private static final long DELAY = 50;
+    private static final long DELAY = 33; // 30 frame
 
     private static Webcam webCam;
     private WebSocketHandler handler;
-
     private static WebCamCache CACHE;
 
 
@@ -49,27 +45,28 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
                 CACHE = new WebCamCache();
             }
         }
-
         return CACHE;
     }
 
+    public static String getWebcamName() {
+        return CACHE.webCam.getName();
+    }
+
+    public void subscribe(WebSocketHandler handler) {
+        log.info("subscribe {}", getWebcamName());
+        CACHE.handler = handler;
+    }
 
     @Override
     public long calculateDelay(long snapshotDuration, double deviceFps) {
         return Math.max(DELAY - snapshotDuration, 0);
     }
 
-    public static BufferedImage getImage(String name) {
-        try {
-            return webCam.getImage(); // return capture image from webcam
-        } catch (Exception e) {
-            LOG.error("Exception when getting image from webcam", e);
+    @Override
+    public void webcamImageObtained(WebcamEvent we) {
+        if (!handler.checkSession()) {
+            handler.newImage(we.getSource(), we.getImage());
         }
-
-        return null;
-    }
-    public static String getWebcamName() {
-        return CACHE.webCam.getName();
     }
 
     @Override
@@ -80,6 +77,7 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
     @Override
     public void webcamClosed(WebcamEvent we) {
         // do nothing
+
     }
 
     @Override
@@ -87,15 +85,8 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
         // do nothing
     }
 
-    @Override
-    public void webcamImageObtained(WebcamEvent we) {
-        log.info("webcamImageObtained");
-        handler.newImage(we.getSource(), we.getImage());
-    }
 
-    public void subscribe(WebSocketHandler handler) {
-        log.info("subscribe {}", getWebcamName());
-        CACHE.handler = handler;
-    }
+
+
 
 }
