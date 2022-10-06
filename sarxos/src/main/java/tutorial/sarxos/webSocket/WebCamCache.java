@@ -64,9 +64,7 @@ public class WebCamCache implements WebcamUpdater.DelayCalculator, WebcamListene
 
     @Override
     public void webcamImageObtained(WebcamEvent we) {
-        if (!handler.checkSession()) {
-            handler.newImage(we.getSource(), we.getImage());
-        }
+        handler.newImage(we.getSource(), we.getImage());
     }
 
     @Override

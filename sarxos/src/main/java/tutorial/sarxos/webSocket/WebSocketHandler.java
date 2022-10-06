@@ -77,12 +77,4 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         }
 
     }
-
-
-
-
-    public boolean checkSession() {
-        return false;
-    }
-
 }
